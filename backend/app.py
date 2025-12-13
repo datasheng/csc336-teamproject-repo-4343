@@ -8,6 +8,7 @@ from routes.tickets import tickets_bp
 from routes.payments import payments_bp
 from routes.chats import chats_bp
 from routes.advertisements import advertisements_bp
+import config
 
 def create_app():
     app = Flask(__name__)
@@ -32,6 +33,7 @@ def create_app():
                 "events": "/api/events",
                 "tickets": "/api/tickets",
                 "payments": "/api/payments",
+                "auth": "/api/auth",
                 "chats": "/api/chats",
                 "advertisements": "/api/advertisements"
             }
