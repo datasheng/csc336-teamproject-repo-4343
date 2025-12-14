@@ -9,7 +9,7 @@ export default function Navbar({ onAuthClick }) {
 
   const handleLogout = () => {
     authService.logout();
-    window.location.reload();
+    window.location.href = '/';
   };
 
   return (
@@ -18,7 +18,7 @@ export default function Navbar({ onAuthClick }) {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             <Ticket className="h-8 w-8 text-indigo-600" />
-            <span className="ml-2 text-xl font-bold text-gray-900">Ticketr</span>
+            <span className="ml-2 text-xl font-bold text-gray-900">CampusEvents</span>
           </div>
           
           {/* Desktop Navigation */}
@@ -34,6 +34,11 @@ export default function Navbar({ onAuthClick }) {
                     Dashboard
                   </a>
                 )}
+                {user?.user_type === 'user' && (
+                  <a href="/events" className="text-gray-700 hover:text-indigo-600 transition">
+                    My Events
+                  </a>
+                )}
                 <button 
                   onClick={handleLogout}
                   className="text-gray-700 hover:text-indigo-600 transition"
@@ -47,7 +52,7 @@ export default function Navbar({ onAuthClick }) {
                   onClick={() => onAuthClick('login')}
                   className="text-gray-700 hover:text-indigo-600 transition"
                 >
-                  Log In
+                  Sign In
                 </button>
                 <button 
                   onClick={() => onAuthClick('signup')}
@@ -82,6 +87,11 @@ export default function Navbar({ onAuthClick }) {
                 {user?.user_type === 'organization' && (
                   <a href="/dashboard" className="block text-gray-700 hover:text-indigo-600">
                     Dashboard
+                  </a>
+                )}
+                {user?.user_type === 'user' && (
+                  <a href="/events" className="block text-gray-700 hover:text-indigo-600">
+                    My Events
                   </a>
                 )}
                 <button 

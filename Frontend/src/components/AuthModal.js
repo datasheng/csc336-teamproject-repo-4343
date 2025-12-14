@@ -34,11 +34,17 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
     setError('');
 
     try {
-      await authService.login(formData.email, formData.password);
+      const response = await authService.login(formData.email, formData.password, accountType);
       onClose();
-      window.location.reload(); // Reload to update navbar
+      
+      // Redirect based on account type
+      if (accountType === 'organization') {
+        window.location.href = '/dashboard';
+      } else {
+        window.location.href = '/events';
+      }
     } catch (err) {
-      setError(err.response?.data?.error || 'Login failed. Please try again.');
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -49,8 +55,16 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
     setLoading(true);
     setError('');
 
-    if (accountType === 'user' && formData.password !== formData.confirmPassword) {
+    // Check password match for both user and organization
+    if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match!');
+      setLoading(false);
+      return;
+    }
+
+    // Validate password strength
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
       setLoading(false);
       return;
     }
@@ -61,6 +75,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           org_name: formData.org_name,
           address: formData.address,
           email: formData.email,
+          password: formData.password,
           is_premium: formData.is_premium
         });
       } else {
@@ -72,9 +87,15 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
         });
       }
       onClose();
-      window.location.reload();
+      
+      // Redirect based on user type  
+      if (accountType === 'organization') {
+        window.location.href = '/dashboard';
+      } else {
+        window.location.href = '/events';
+      }
     } catch (err) {
-      setError(err.response?.data?.error || 'Signup failed. Please try again.');
+      setError(err.message || 'Signup failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -226,6 +247,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
               <form onSubmit={handleSignup} className="space-y-4">
                 {accountType === 'user' ? (
                   <>
+                    {/* USER SIGNUP FIELDS */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Full Name
@@ -274,8 +296,9 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                           value={formData.password}
                           onChange={handleInputChange}
                           required
+                          minLength="6"
                           className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
-                          placeholder="Create a password"
+                          placeholder="Create a password (min 6 characters)"
                         />
                       </div>
                     </div>
@@ -315,6 +338,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                   </>
                 ) : (
                   <>
+                    {/* ORGANIZATION SIGNUP FIELDS - WITH PASSWORD */}
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-2">
                         Organization Name
@@ -347,6 +371,45 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
                           required
                           className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
                           placeholder="org.email@university.edu"
+                        />
+                      </div>
+                    </div>
+
+                    {/* PASSWORD FIELD FOR ORGANIZATION */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Password
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                        <input
+                          type="password"
+                          name="password"
+                          value={formData.password}
+                          onChange={handleInputChange}
+                          required
+                          minLength="6"
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                          placeholder="Create a password (min 6 characters)"
+                        />
+                      </div>
+                    </div>
+
+                    {/* CONFIRM PASSWORD FIELD FOR ORGANIZATION */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Confirm Password
+                      </label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                        <input
+                          type="password"
+                          name="confirmPassword"
+                          value={formData.confirmPassword}
+                          onChange={handleInputChange}
+                          required
+                          className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+                          placeholder="Confirm your password"
                         />
                       </div>
                     </div>

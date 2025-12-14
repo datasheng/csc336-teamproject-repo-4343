@@ -6,7 +6,7 @@ import config
 
 users_bp = Blueprint('users', __name__)
 
-@users_bp.post("/")
+@users_bp.post("/", strict_slashes=False)
 def create_user():
     try:
         data = request.json
@@ -30,9 +30,10 @@ def create_user():
 
         return jsonify({"message": "User created successfully", "user_id": user_id, "token": token}), 201
     except Exception as e:
+        print(f"Error creating user: {e}")  # Add logging
         return jsonify({"error": str(e)}), 500
 
-@users_bp.get("/")
+@users_bp.get("/", strict_slashes=False)
 def get_users():
     try:
         conn = get_db_connection()
@@ -46,7 +47,7 @@ def get_users():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@users_bp.get("/<int:user_id>")
+@users_bp.get("/<int:user_id>", strict_slashes=False)
 def get_user(user_id):
     try:
         conn = get_db_connection()
@@ -63,7 +64,7 @@ def get_user(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@users_bp.get("/by_email")
+@users_bp.get("/by_email", strict_slashes=False)
 def get_user_by_email():
     email = request.args.get("email")
     try:
@@ -81,7 +82,7 @@ def get_user_by_email():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@users_bp.put("/<int:user_id>")
+@users_bp.put("/<int:user_id>", strict_slashes=False)
 def update_user(user_id):
     try:
         data = request.json
@@ -99,7 +100,7 @@ def update_user(user_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@users_bp.post("/login")
+@users_bp.post("/login", strict_slashes=False)
 def login_user():
     try:
         data = request.json
@@ -109,12 +110,16 @@ def login_user():
         if not email or not password:
             return jsonify({"error": "Email and password required"}), 400
         
+        print(f"Attempting login with email: {email}, password: {password}")
+        
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM USERS WHERE email = %s", (email,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
+        
+        print(f"User found: {user}")
         
         if user and user["password"] == password:
             # Remove password from response
@@ -125,9 +130,14 @@ def login_user():
                 'email': user['email'],
                 'exp': datetime.utcnow() + timedelta(hours=24)
             }, config.SECRET_KEY, algorithm='HS256')
+            print(f"Login successful for {email}")
             return jsonify({"message": "Login successful", "user": user_data, "token": token}), 200
         else:
+            print(f"Login failed for {email}: invalid credentials")
+            if user:
+                print(f"Stored password: {user['password']}, Provided password: {password}")
             return jsonify({"error": "Invalid email or password"}), 401
     
     except Exception as e:
+        print(f"Error logging in: {e}")
         return jsonify({"error": str(e)}), 500

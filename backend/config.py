@@ -1,1 +1,1 @@
-SECRET_KEY = 'your-secret-key-here'
+SECRET_KEY = 'your-secret-key-here-change-in-production'

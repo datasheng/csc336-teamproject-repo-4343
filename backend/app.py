@@ -9,10 +9,14 @@ from routes.payments import payments_bp
 from routes.chats import chats_bp
 from routes.advertisements import advertisements_bp
 import config
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)
+    CORS(app, resources={r"/api/*": {"origins": "*", "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"], "allow_headers": ["Content-Type", "Authorization"]}})
 
     # Register blueprints
     app.register_blueprint(users_bp, url_prefix='/api/users')

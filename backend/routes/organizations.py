@@ -3,6 +3,9 @@ from database import get_db_connection
 import jwt
 from datetime import datetime, timedelta
 import config
+import jwt
+from datetime import datetime, timedelta
+import config
 
 orgs_bp = Blueprint('organizations', __name__)
 
@@ -13,8 +16,8 @@ def create_org():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute (
-            "INSERT INTO ORGANIZATIONS (org_name, address, email, is_premium) VALUES (%s, %s, %s, %s)",
-            (data["org_name"], data.get("address"), data["email"], data.get("is_premium", False))
+            "INSERT INTO ORGANIZATIONS (org_name, address, email, is_premium, password) VALUES (%s, %s, %s, %s, %s)",
+            (data["org_name"], data.get("address"), data["email"], data.get("is_premium", False), data["password"])
         )
         conn.commit()
         org_id = cursor.lastrowid
@@ -38,19 +41,41 @@ def get_all_orgs():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@orgs_bp.get("/<int:org_id>")
-def get_org(org_id):
+@orgs_bp.post("/login")
+def login_org():
     try:
+        data = request.json
+        email = data.get("email")
+        password = data.get("password")
+        
+        if not email or not password:
+            return jsonify({"error": "Email and password required"}), 400
+        
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM ORGANIZATIONS WHERE org_id = %s", (org_id,))
+        cursor.execute("SELECT * FROM ORGANIZATIONS WHERE email = %s", (email,))
         org = cursor.fetchone()
         cursor.close()
         conn.close()
-        if org:
-            return jsonify(org)
+        
+        if org and org["password"] == password:
+            # Remove password from response
+            org_data = {k: v for k, v in org.items() if k != "password"}
+            # Generate JWT token
+            token = jwt.encode({
+                'org_id': org['org_id'],
+                'email': org['email'],
+                'exp': datetime.utcnow() + timedelta(hours=24)
+            }, config.SECRET_KEY, algorithm='HS256')
+            print(f"Org login successful for {email}")
+            return jsonify({"message": "Login successful", "org": org_data, "token": token}), 200
         else:
-            return jsonify({"error": "Organization not found"}), 404
+            print(f"Org login failed for {email}: invalid credentials")
+            return jsonify({"error": "Invalid email or password"}), 401
+    
+    except Exception as e:
+        print(f"Error logging in org: {e}")
+        return jsonify({"error": str(e)}), 500
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500

@@ -3,7 +3,7 @@ from database import get_db_connection
 
 events_bp = Blueprint('events', __name__)
 
-@events_bp.post("/")
+@events_bp.post("/", strict_slashes=False)
 def create_event():
     try:
         data = request.json
@@ -11,7 +11,7 @@ def create_event():
         cursor = conn.cursor()
         cursor.execute (
             "INSERT INTO EVENTS (org_id, event_name, event_date, location, max_attendees, ticket_price, event_status, is_sponsored, sponsor_name, vip_access_time, general_access_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (data["org_id"], data["event_name"], data["event_date"], data["location"], data.get("max_attendees"), data["ticket_price"], data.get("event_status", "upcoming"), data.get("is_sponsored", False), data["sponsor_name"], data["vip_access_time"], data.get("general_access_time"))
+            (data["org_id"], data["event_name"], data["event_date"], data["location"], data.get("max_attendees"), data["ticket_price"], data.get("event_status", "upcoming"), data.get("is_sponsored", False), data.get("sponsor_name"), data.get("vip_access_time"), data.get("general_access_time"))
         )
         conn.commit()
         cursor.close()
@@ -20,9 +20,10 @@ def create_event():
         return jsonify({"message": "Event created successfully", "event_id": event_id}), 201
     
     except Exception as e:
+        print(f"Error creating event: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
-@events_bp.get("/")
+@events_bp.get("/", strict_slashes=False)
 def get_all_events():
     try:
         conn = get_db_connection()
@@ -35,7 +36,7 @@ def get_all_events():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@events_bp.get("/<int:event_id>")
+@events_bp.get("/<int:event_id>", strict_slashes=False)
 def get_event(event_id):
     try:
         conn = get_db_connection()
@@ -52,7 +53,7 @@ def get_event(event_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@events_bp.put("/<int:event_id>")
+@events_bp.put("/<int:event_id>", strict_slashes=False)
 def update_event(event_id):
     try:
         data = request.json
@@ -70,7 +71,7 @@ def update_event(event_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@events_bp.delete("/<int:event_id>")
+@events_bp.delete("/<int:event_id>", strict_slashes=False)
 def delete_event(event_id):
     try:
         conn = get_db_connection()
@@ -84,7 +85,7 @@ def delete_event(event_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@events_bp.get("/by_org/<int:org_id>")
+@events_bp.get("/by_org/<int:org_id>", strict_slashes=False)
 def get_events_by_org(org_id):
     try:
         conn = get_db_connection()
