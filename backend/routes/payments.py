@@ -3,7 +3,7 @@ from database import get_db_connection
 
 payments_bp = Blueprint('payments', __name__)
 
-@payments_bp.post("/")
+@payments_bp.post("/", strict_slashes=False)
 def create_payment():
     try:
         data = request.json
@@ -22,7 +22,7 @@ def create_payment():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@payments_bp.get("/")
+@payments_bp.get("/", strict_slashes=False)
 def get_payments():
     try:
         conn = get_db_connection()
@@ -35,7 +35,7 @@ def get_payments():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@payments_bp.get("/<int:payment_id>")
+@payments_bp.get("/<int:payment_id>", strict_slashes=False)
 def get_payment(payment_id):
     try:
         conn = get_db_connection()
@@ -52,7 +52,7 @@ def get_payment(payment_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@payments_bp.put("/<int:payment_id>")
+@payments_bp.put("/<int:payment_id>", strict_slashes=False)
 def update_payment(payment_id):
     try:
         data = request.json
@@ -70,7 +70,7 @@ def update_payment(payment_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@payments_bp.delete("/<int:payment_id>")
+@payments_bp.delete("/<int:payment_id>", strict_slashes=False)
 def delete_payment(payment_id):
     try:
         conn = get_db_connection()
@@ -84,7 +84,7 @@ def delete_payment(payment_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@payments_bp.get("/by_user/<int:user_id>")
+@payments_bp.get("/by_user/<int:user_id>", strict_slashes=False)
 def get_payments_by_user(user_id):
     try:
         conn = get_db_connection()

@@ -3,7 +3,7 @@ from database import get_db_connection
 
 tickets_bp = Blueprint('tickets', __name__)
 
-@tickets_bp.post("/")
+@tickets_bp.post("/", strict_slashes=False)
 def create_ticket():
     data = request.json
 
@@ -23,7 +23,7 @@ def create_ticket():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@tickets_bp.get("/")
+@tickets_bp.get("/", strict_slashes=False)
 def get_tickets():
     try:
         conn = get_db_connection()
@@ -37,7 +37,7 @@ def get_tickets():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@tickets_bp.get("/<int:ticket_id>")
+@tickets_bp.get("/<int:ticket_id>", strict_slashes=False)
 def get_ticket(ticket_id):
     try:
         conn = get_db_connection()
@@ -54,7 +54,7 @@ def get_ticket(ticket_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@tickets_bp.put("/<int:ticket_id>")
+@tickets_bp.put("/<int:ticket_id>", strict_slashes=False)
 def update_ticket(ticket_id):
     try:
         data = request.json
@@ -72,7 +72,7 @@ def update_ticket(ticket_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@tickets_bp.delete("/<int:ticket_id>")
+@tickets_bp.delete("/<int:ticket_id>", strict_slashes=False)
 def delete_ticket(ticket_id):
     try:
         conn = get_db_connection()
@@ -86,7 +86,7 @@ def delete_ticket(ticket_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@tickets_bp.get("/event/<int:event_id>")
+@tickets_bp.get("/event/<int:event_id>", strict_slashes=False)
 def get_tickets_by_event(event_id):
     try:
         conn = get_db_connection()
@@ -100,7 +100,7 @@ def get_tickets_by_event(event_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@tickets_bp.get("/by_user/<int:user_id>")
+@tickets_bp.get("/by_user/<int:user_id>", strict_slashes=False)
 def get_tickets_by_user(user_id):
     try:
         conn = get_db_connection()

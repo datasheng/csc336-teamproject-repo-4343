@@ -3,13 +3,10 @@ from database import get_db_connection
 import jwt
 from datetime import datetime, timedelta
 import config
-import jwt
-from datetime import datetime, timedelta
-import config
 
 orgs_bp = Blueprint('organizations', __name__)
 
-@orgs_bp.post("/")
+@orgs_bp.post("/", strict_slashes=False)
 def create_org():
     try:
         data = request.json
@@ -28,7 +25,7 @@ def create_org():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@orgs_bp.get("/")
+@orgs_bp.get("/", strict_slashes=False)
 def get_all_orgs():
     try:
         conn = get_db_connection()
@@ -41,7 +38,7 @@ def get_all_orgs():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@orgs_bp.post("/login")
+@orgs_bp.post("/login", strict_slashes=False)
 def login_org():
     try:
         data = request.json
@@ -67,20 +64,14 @@ def login_org():
                 'email': org['email'],
                 'exp': datetime.utcnow() + timedelta(hours=24)
             }, config.SECRET_KEY, algorithm='HS256')
-            print(f"Org login successful for {email}")
             return jsonify({"message": "Login successful", "org": org_data, "token": token}), 200
         else:
-            print(f"Org login failed for {email}: invalid credentials")
             return jsonify({"error": "Invalid email or password"}), 401
     
     except Exception as e:
-        print(f"Error logging in org: {e}")
         return jsonify({"error": str(e)}), 500
     
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-    
-@orgs_bp.put("/<int:org_id>")
+@orgs_bp.put("/<int:org_id>", strict_slashes=False)
 def update_org(org_id):
     try:
         data = request.json
@@ -98,7 +89,7 @@ def update_org(org_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@orgs_bp.delete("/<int:org_id>")
+@orgs_bp.delete("/<int:org_id>", strict_slashes=False)
 def delete_org(org_id):
     try:
         conn = get_db_connection()

@@ -3,7 +3,7 @@ from database import get_db_connection
 
 chats_bp = Blueprint('chats', __name__)
 
-@chats_bp.post("/")
+@chats_bp.post("/", strict_slashes=False)
 def create_chat():
     try:
         data = request.json
@@ -22,7 +22,7 @@ def create_chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@chats_bp.get("/")
+@chats_bp.get("/", strict_slashes=False)
 def get_all_chats():
     try:
         conn = get_db_connection()
@@ -35,7 +35,7 @@ def get_all_chats():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@chats_bp.get("/<int:chat_id>")
+@chats_bp.get("/<int:chat_id>", strict_slashes=False)
 def get_chat(chat_id):
     try:
         conn = get_db_connection()
@@ -52,7 +52,7 @@ def get_chat(chat_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@chats_bp.put("/<int:chat_id>")
+@chats_bp.put("/<int:chat_id>", strict_slashes=False)
 def update_chat(chat_id):
     try:
         data = request.json
@@ -70,7 +70,7 @@ def update_chat(chat_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@chats_bp.delete("/<int:chat_id>")
+@chats_bp.delete("/<int:chat_id>", strict_slashes=False)
 def delete_chat(chat_id):
     try:
         conn = get_db_connection()
@@ -84,7 +84,7 @@ def delete_chat(chat_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@chats_bp.get("/recommended/<int:event_id>")
+@chats_bp.get("/recommended/<int:event_id>", strict_slashes=False)
 def get_chats_by_recommended_event(event_id):
     try:
         conn = get_db_connection()
@@ -98,7 +98,7 @@ def get_chats_by_recommended_event(event_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@chats_bp.get("/by_user/<int:user_id>")
+@chats_bp.get("/by_user/<int:user_id>", strict_slashes=False)
 def get_chats_by_user(user_id):
     try:
         conn = get_db_connection()

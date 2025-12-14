@@ -129,6 +129,51 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           {/* Login Form */}
           {authMode === 'login' && (
             <form onSubmit={handleLogin} className="space-y-4">
+              {/* Account Type Selection for Login */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Login As
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setAccountType('user')}
+                    className={`p-3 rounded-lg border-2 transition ${
+                      accountType === 'user'
+                        ? 'border-indigo-600 bg-indigo-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <User className={`h-5 w-5 mx-auto mb-1 ${
+                      accountType === 'user' ? 'text-indigo-600' : 'text-gray-400'
+                    }`} />
+                    <span className={`text-sm font-medium ${
+                      accountType === 'user' ? 'text-indigo-600' : 'text-gray-600'
+                    }`}>
+                      Student
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setAccountType('organization')}
+                    className={`p-3 rounded-lg border-2 transition ${
+                      accountType === 'organization'
+                        ? 'border-indigo-600 bg-indigo-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Building2 className={`h-5 w-5 mx-auto mb-1 ${
+                      accountType === 'organization' ? 'text-indigo-600' : 'text-gray-400'
+                    }`} />
+                    <span className={`text-sm font-medium ${
+                      accountType === 'organization' ? 'text-indigo-600' : 'text-gray-600'
+                    }`}>
+                      Organization
+                    </span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email

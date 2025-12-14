@@ -3,6 +3,7 @@ import { Search, Calendar, MapPin, Users, LogOut } from 'lucide-react';
 import eventService from '../services/eventService';
 import { authService } from '../services/authService';
 import EventCard from '../components/EventCard';
+import EventDetailModal from '../components/EventDetailModal';
 import Footer from '../components/Footer';
 
 export default function EventsPage() {
@@ -10,6 +11,8 @@ export default function EventsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const user = authService.getCurrentUser();
 
   useEffect(() => {
@@ -42,7 +45,16 @@ export default function EventsPage() {
   };
 
   const handleEventClick = (eventId) => {
-    window.location.href = `/event/${eventId}`;
+    const event = events.find(e => e.event_id === eventId);
+    if (event) {
+      setSelectedEvent(event);
+      setIsModalOpen(true);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedEvent(null);
   };
 
   const filteredEvents = events.filter(event => {
@@ -148,6 +160,12 @@ export default function EventsPage() {
           </div>
         )}
       </div>
+
+      <EventDetailModal 
+        event={selectedEvent}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
 
       <Footer />
     </div>

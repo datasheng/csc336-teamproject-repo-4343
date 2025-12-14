@@ -3,7 +3,7 @@ from database import get_db_connection
 
 advertisements_bp = Blueprint('advertisements', __name__)
 
-@advertisements_bp.post("/")
+@advertisements_bp.post("/", strict_slashes=False)
 def create_advertisements():
     try:
         data = request.json
@@ -22,7 +22,7 @@ def create_advertisements():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@advertisements_bp.get("/")
+@advertisements_bp.get("/", strict_slashes=False)
 def get_all_advertisements():
     try:
         conn = get_db_connection()
@@ -35,7 +35,7 @@ def get_all_advertisements():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
-@advertisements_bp.get("/<int:advertisement_id>")
+@advertisements_bp.get("/<int:advertisement_id>", strict_slashes=False)
 def get_advertisement(advertisement_id):
     try:
         conn = get_db_connection()
@@ -52,7 +52,7 @@ def get_advertisement(advertisement_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@advertisements_bp.put("/<int:advertisement_id>")
+@advertisements_bp.put("/<int:advertisement_id>", strict_slashes=False)
 def update_advertisement(advertisement_id):
     try:
         data = request.json
@@ -69,7 +69,7 @@ def update_advertisement(advertisement_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@advertisements_bp.delete("/<int:advertisement_id>")
+@advertisements_bp.delete("/<int:advertisement_id>", strict_slashes=False)
 def delete_advertisement(advertisement_id):
     try:
         conn = get_db_connection()
@@ -82,7 +82,7 @@ def delete_advertisement(advertisement_id):
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-@advertisements_bp.get("/by_event/<int:event_id>")
+@advertisements_bp.get("/by_event/<int:event_id>", strict_slashes=False)
 def get_advertisements_by_event(event_id):
     try:
         conn = get_db_connection()
