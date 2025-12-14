@@ -76,11 +76,23 @@ def delete_event(event_id):
     try:
         conn = get_db_connection()
         cursor = conn.cursor()
+        
+        # First, delete all tickets associated with this event
+        cursor.execute("DELETE FROM tickets WHERE event_id = %s", (event_id,))
+        
+        # Then delete the event
         cursor.execute("DELETE FROM EVENTS WHERE event_id = %s", (event_id,))
         conn.commit()
+        
+        # Check if event was deleted
+        if cursor.rowcount == 0:
+            cursor.close()
+            conn.close()
+            return jsonify({"error": "Event not found"}), 404
+        
         cursor.close()
         conn.close()
-        return jsonify({"message": "Event deleted successfully"})
+        return jsonify({"message": "Event deleted successfully", "event_id": event_id}), 200
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500

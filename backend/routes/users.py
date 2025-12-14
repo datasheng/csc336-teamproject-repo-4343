@@ -110,16 +110,12 @@ def login_user():
         if not email or not password:
             return jsonify({"error": "Email and password required"}), 400
         
-        print(f"Attempting login with email: {email}, password: {password}")
-        
         conn = get_db_connection()
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM USERS WHERE email = %s", (email,))
         user = cursor.fetchone()
         cursor.close()
         conn.close()
-        
-        print(f"User found: {user}")
         
         if user and user["password"] == password:
             # Remove password from response
@@ -134,8 +130,6 @@ def login_user():
             return jsonify({"message": "Login successful", "user": user_data, "token": token}), 200
         else:
             print(f"Login failed for {email}: invalid credentials")
-            if user:
-                print(f"Stored password: {user['password']}, Provided password: {password}")
             return jsonify({"error": "Invalid email or password"}), 401
     
     except Exception as e:

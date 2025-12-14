@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify
 from database import get_db_connection
+from datetime import datetime
 
 tickets_bp = Blueprint('tickets', __name__)
 
@@ -8,11 +9,23 @@ def create_ticket():
     data = request.json
 
     try:
+        # Convert ISO 8601 datetime to MySQL DATETIME format
+        purchase_date = data.get("purchase_date")
+        if purchase_date:
+            # Parse ISO format and convert to MySQL format (YYYY-MM-DD HH:MM:SS)
+            dt = datetime.fromisoformat(purchase_date.replace('Z', '+00:00'))
+            purchase_date = dt.strftime('%Y-%m-%d %H:%M:%S')
+        
+        check_in_time = data.get("check_in_time")
+        if check_in_time:
+            dt = datetime.fromisoformat(check_in_time.replace('Z', '+00:00'))
+            check_in_time = dt.strftime('%Y-%m-%d %H:%M:%S')
+        
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute (
             "INSERT INTO tickets (event_id, user_id, ticket_status, qr_code, purchase_date, check_in_time, purchase_source) VALUES (%s, %s, %s, %s, %s, %s, %s)",
-            (data["event_id"], data["user_id"], data.get("ticket_status", "active"), data["qr_code"], data["purchase_date"], data["check_in_time"], data.get("purchase_source", "direct"))
+            (data["event_id"], data["user_id"], data.get("ticket_status", "active"), data["qr_code"], purchase_date, check_in_time, data.get("purchase_source", "direct"))
         )
         conn.commit()
         ticket_id = cursor.lastrowid
@@ -58,11 +71,23 @@ def get_ticket(ticket_id):
 def update_ticket(ticket_id):
     try:
         data = request.json
+        
+        # Convert ISO 8601 datetime to MySQL DATETIME format
+        purchase_date = data.get("purchase_date")
+        if purchase_date:
+            dt = datetime.fromisoformat(purchase_date.replace('Z', '+00:00'))
+            purchase_date = dt.strftime('%Y-%m-%d %H:%M:%S')
+        
+        check_in_time = data.get("check_in_time")
+        if check_in_time:
+            dt = datetime.fromisoformat(check_in_time.replace('Z', '+00:00'))
+            check_in_time = dt.strftime('%Y-%m-%d %H:%M:%S')
+        
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute (
             "UPDATE tickets SET event_id = %s, user_id = %s, ticket_status = %s, qr_code = %s, purchase_date = %s, check_in_time = %s, purchase_source = %s WHERE ticket_id = %s",
-            (data["event_id"], data["user_id"], data["ticket_status"], data["qr_code"], data["purchase_date"], data["check_in_time"], data["purchase_source"], ticket_id)
+            (data["event_id"], data["user_id"], data["ticket_status"], data["qr_code"], purchase_date, check_in_time, data["purchase_source"], ticket_id)
         )
         conn.commit()
         cursor.close()
