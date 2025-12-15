@@ -26,6 +26,7 @@ CREATE TABLE EVENTS (
     location VARCHAR(256) NOT NULL,
     max_attendees INT,
     ticket_price DECIMAL(10,2),
+    event_category VARCHAR(50) DEFAULT 'other',
     event_status VARCHAR(50) DEFAULT 'upcoming',
     is_sponsored BOOLEAN DEFAULT FALSE,
     sponsor_name VARCHAR(256),
@@ -85,3 +86,21 @@ CREATE TABLE ADVERTISEMENTS (
     status VARCHAR(50) DEFAULT 'active',
     FOREIGN KEY (event_id) REFERENCES EVENTS(event_id)
 );
+
+-- SAMPLE DATA FOR TESTING
+
+-- Insert sample organizations
+INSERT INTO ORGANIZATIONS (org_name, address, email) VALUES
+('Tech Events Inc', '123 Innovation St', 'tech@events.com'),
+('Music Productions', '456 Entertainment Ave', 'music@events.com'),
+('Sports World', '789 Athletic Blvd', 'sports@events.com');
+
+-- Insert sample tech events
+INSERT INTO EVENTS (org_id, event_name, event_date, location, max_attendees, ticket_price, event_category, event_status) VALUES
+(1, 'AI Conference 2025', '2025-01-20 09:00:00', 'Convention Center', 500, 49.99, 'tech', 'upcoming'),
+(1, 'React Workshop', '2025-01-25 14:00:00', 'Tech Hub Downtown', 50, 29.99, 'tech', 'upcoming'),
+(1, 'Web Development Bootcamp', '2025-02-01 10:00:00', 'Developer Campus', 100, 199.99, 'tech', 'upcoming'),
+(2, 'Live Jazz Night', '2025-01-22 20:00:00', 'Concert Hall', 300, 45.00, 'music', 'upcoming'),
+(2, 'Symphony Orchestra', '2025-02-05 19:30:00', 'Grand Theater', 1000, 85.00, 'music', 'upcoming'),
+(3, 'Basketball Championship', '2025-01-28 18:00:00', 'Sports Arena', 5000, 35.00, 'sports', 'upcoming'),
+(3, 'Football Tournament', '2025-02-10 15:00:00', 'Stadium', 10000, 50.00, 'sports', 'upcoming');

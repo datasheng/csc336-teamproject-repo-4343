@@ -11,6 +11,8 @@ def create_org():
     try:
         data = request.json
         conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database connection failed"}), 500
         cursor = conn.cursor()
         cursor.execute (
             "INSERT INTO ORGANIZATIONS (org_name, address, email, is_premium, password) VALUES (%s, %s, %s, %s, %s)",
@@ -29,6 +31,8 @@ def create_org():
 def get_all_orgs():
     try:
         conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database connection failed"}), 500
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM ORGANIZATIONS")
         orgs = cursor.fetchall()
@@ -49,6 +53,10 @@ def login_org():
             return jsonify({"error": "Email and password required"}), 400
         
         conn = get_db_connection()
+        if not conn:
+            print(f"Database connection failed for login attempt: {email}")
+            return jsonify({"error": "Database connection failed"}), 500
+        
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM ORGANIZATIONS WHERE email = %s", (email,))
         org = cursor.fetchone()

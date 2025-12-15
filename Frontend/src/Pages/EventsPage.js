@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Search, Calendar, MapPin, Users, LogOut } from 'lucide-react';
+import { Search, Calendar, MapPin, Users, LogOut, Filter } from 'lucide-react';
 import eventService from '../services/eventService';
 import { authService } from '../services/authService';
+import { EVENT_CATEGORIES } from '../constants/eventCategories';
 import EventCard from '../components/EventCard';
 import EventDetailModal from '../components/EventDetailModal';
+import AIChatButton from '../components/AiChatButton';
 import Footer from '../components/Footer';
 
 export default function EventsPage() {
@@ -60,11 +62,9 @@ export default function EventsPage() {
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.event_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          event.location?.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || event.event_category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
-
-  const categories = ['all', 'Technology', 'Cultural', 'Career', 'Music', 'Workshop', 'Art'];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -132,17 +132,46 @@ export default function EventsPage() {
               className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
             />
           </div>
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
-          >
-            {categories.map(cat => (
-              <option key={cat} value={cat}>
-                {cat === 'all' ? 'All Categories' : cat}
-              </option>
-            ))}
-          </select>
+          <div className="flex items-center gap-2">
+            <Filter className="h-5 w-5 text-gray-600" />
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none bg-white cursor-pointer"
+            >
+              <option value="all">All Categories</option>
+              {EVENT_CATEGORIES.map(cat => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {/* Selected Category Display */}
+        {selectedCategory !== 'all' && (
+          <div className="mb-6 p-3 bg-indigo-50 border border-indigo-200 rounded-lg flex items-center justify-between">
+            <div>
+              <span className="text-sm text-gray-700">Filtered by: </span>
+              <span className={`ml-2 px-3 py-1 rounded-full text-sm font-semibold ${EVENT_CATEGORIES.find(c => c.value === selectedCategory)?.color}`}>
+                {EVENT_CATEGORIES.find(c => c.value === selectedCategory)?.label}
+              </span>
+            </div>
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className="text-sm text-indigo-600 hover:text-indigo-800 font-semibold"
+            >
+              Clear Filter
+            </button>
+          </div>
+        )}
+
+        {/* Events Count */}
+        <div className="mb-4 text-sm text-gray-600">
+          {filteredEvents.length > 0 ? (
+            <span>Showing <strong>{filteredEvents.length}</strong> event{filteredEvents.length !== 1 ? 's' : ''}</span>
+          ) : null}
         </div>
 
         {/* Events Grid */}
@@ -174,6 +203,9 @@ export default function EventsPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
       />
+
+      {/* AI Chat Button - Floating */}
+      <AIChatButton />
 
       <Footer />
     </div>

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Calendar, MapPin, DollarSign, Users, Clock } from 'lucide-react';
 import eventService from '../services/eventService';
 import { authService } from '../services/authService';
+import { EVENT_CATEGORIES } from '../constants/eventCategories';
 
 export default function EditEventModal({ isOpen, onClose, event, onEventUpdated }) {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,7 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
     location: '',
     max_attendees: '',
     ticket_price: '',
+    event_category: 'other',
     sponsor_name: '',
     is_sponsored: false,
     vip_access_time: '',
@@ -29,6 +31,7 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
         location: event.location || '',
         max_attendees: event.max_attendees || '',
         ticket_price: event.ticket_price || '',
+        event_category: event.event_category || 'other',
         sponsor_name: event.sponsor_name || '',
         is_sponsored: event.is_sponsored || false,
         vip_access_time: event.vip_access_time ? event.vip_access_time.slice(0, 16) : '',
@@ -66,6 +69,7 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
         location: formData.location,
         max_attendees: formData.max_attendees ? parseInt(formData.max_attendees) : null,
         ticket_price: parseFloat(formData.ticket_price) || 0,
+        event_category: formData.event_category,
         sponsor_name: formData.sponsor_name || null,
         is_sponsored: formData.is_sponsored,
         vip_access_time: formData.vip_access_time || null,
@@ -81,6 +85,7 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
         location: '',
         max_attendees: '',
         ticket_price: '',
+        event_category: 'other',
         sponsor_name: '',
         is_sponsored: false,
         vip_access_time: '',
@@ -187,6 +192,24 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
                 placeholder="0.00"
               />
             </div>
+          </div>
+
+          {/* Event Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Event Category *</label>
+            <select
+              name="event_category"
+              value={formData.event_category}
+              onChange={handleInputChange}
+              required
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none"
+            >
+              {EVENT_CATEGORIES.map((category) => (
+                <option key={category.value} value={category.value}>
+                  {category.label}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Event Status */}

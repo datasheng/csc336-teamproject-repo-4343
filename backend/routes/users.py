@@ -11,6 +11,8 @@ def create_user():
     try:
         data = request.json
         conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database connection failed"}), 500
         cursor = conn.cursor()
         cursor.execute (
             "INSERT INTO USERS (user_name, email, password, is_vip) VALUES (%s, %s, %s, %s)",
@@ -37,6 +39,8 @@ def create_user():
 def get_users():
     try:
         conn = get_db_connection()
+        if not conn:
+            return jsonify({"error": "Database connection failed"}), 500
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM USERS")
         users = cursor.fetchall()
@@ -111,6 +115,10 @@ def login_user():
             return jsonify({"error": "Email and password required"}), 400
         
         conn = get_db_connection()
+        if not conn:
+            print(f"Database connection failed for login attempt: {email}")
+            return jsonify({"error": "Database connection failed"}), 500
+        
         cursor = conn.cursor(dictionary=True)
         cursor.execute("SELECT * FROM USERS WHERE email = %s", (email,))
         user = cursor.fetchone()

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calendar, MapPin, Users } from 'lucide-react';
+import { getCategoryLabel, getCategoryColor } from '../constants/eventCategories';
 
 export default function EventCard({ event, onClick }) {
   return (
@@ -13,6 +14,11 @@ export default function EventCard({ event, onClick }) {
           alt={event.event_name}
           className="w-full h-full object-cover group-hover:scale-110 transition duration-300"
         />
+        {/* Category Badge */}
+        <div className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(event.event_category || 'other')}`}>
+          {getCategoryLabel(event.event_category || 'other')}
+        </div>
+        {/* Price Badge */}
         {event.ticket_price === 0 ? (
           <div className="absolute top-3 left-3 bg-green-500 text-white px-3 py-1 rounded-full text-sm font-semibold">
             Free
