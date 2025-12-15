@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Plus, Calendar, Users, DollarSign, TrendingUp, LogOut, Edit, Trash2, Eye, Download } from 'lucide-react';
 import eventService from '../services/eventService';
 import { ticketService } from '../services/ticketService';
@@ -7,6 +7,20 @@ import { excelService } from '../services/excelService';
 import CreateEventModal from '../components/CreateEventModal';
 import EventDetailModal from '../components/EventDetailModal';
 import EditEventModal from '../components/EditEventModal';
+
+function StatCard({ label, value, icon }) {
+  return (
+    <div className="bg-white p-6 rounded-lg shadow-sm flex justify-between">
+      <div>
+        <p className="text-gray-500 text-sm">{label}</p>
+        <p className="text-3xl font-bold">{value}</p>
+      </div>
+      <div className="bg-indigo-100 p-3 rounded-lg text-indigo-600">
+        {icon}
+      </div>
+    </div>
+  );
+}
 
 export default function Dashboard() {
   const [events, setEvents] = useState([]);
@@ -20,19 +34,11 @@ export default function Dashboard() {
 
   const user = authService.getCurrentUser();
 
-  useEffect(() => {
-    if (!authService.isAuthenticated() || !user?.org_id) {
-      window.location.href = '/';
-      return;
-    }
-    fetchOrgEvents();
-  }, []);
-
-  const fetchOrgEvents = async () => {
+  
+  const fetchOrgEvents = useCallback(async () => {
     try {
       const response = await eventService.getEventsByOrg(user.org_id);
       
-      // Fetch tickets for all events and calculate registrations and revenue
       let totalReg = 0;
       let totalRev = 0;
       
@@ -43,7 +49,7 @@ export default function Dashboard() {
             const registrationCount = tickets.length;
             totalReg += registrationCount;
             
-            // Calculate revenue: ticket_price * number of paid tickets
+          
             if (event.ticket_price > 0) {
               totalRev += event.ticket_price * registrationCount;
             }
@@ -70,7 +76,15 @@ export default function Dashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.org_id]);
+
+  useEffect(() => {
+    if (!authService.isAuthenticated() || !user?.org_id) {
+      window.location.href = '/';
+      return;
+    }
+    fetchOrgEvents();
+  }, [fetchOrgEvents, user?.org_id]); 
 
   const handleLogout = () => {
     authService.logout();
@@ -106,9 +120,9 @@ export default function Dashboard() {
     try {
       const response = await eventService.deleteEvent(eventId);
       console.log('Delete response:', response);
-      // Remove event from the list
+      
       setEvents(events.filter(e => e.event_id !== eventId));
-      // Recalculate stats
+    
       fetchOrgEvents();
       alert('Event deleted successfully');
     } catch (error) {
@@ -119,7 +133,6 @@ export default function Dashboard() {
 
   const totalEvents = events.length;
   const upcomingEvents = events.filter(e => e.event_status === 'upcoming').length;
-  const completedEvents = events.filter(e => e.event_status === 'completed').length;
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -151,7 +164,7 @@ export default function Dashboard() {
         </div>
       </nav>
 
-      {/* Content */}
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -279,21 +292,6 @@ export default function Dashboard() {
         onClose={() => setShowDetailModal(false)}
         event={selectedEvent}
       />
-    </div>
-  );
-}
-
-/* Small stat card helper */
-function StatCard({ label, value, icon }) {
-  return (
-    <div className="bg-white p-6 rounded-lg shadow-sm flex justify-between">
-      <div>
-        <p className="text-gray-500 text-sm">{label}</p>
-        <p className="text-3xl font-bold">{value}</p>
-      </div>
-      <div className="bg-indigo-100 p-3 rounded-lg text-indigo-600">
-        {icon}
-      </div>
     </div>
   );
 }
