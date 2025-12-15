@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Calendar, MapPin, DollarSign, Users, Clock } from 'lucide-react';
+import { X } from 'lucide-react';
 import eventService from '../services/eventService';
 import { authService } from '../services/authService';
 import { EVENT_CATEGORIES } from '../constants/eventCategories';
@@ -20,7 +20,8 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
     is_sponsored: false,
     vip_access_time: '',
     general_access_time: '',
-    event_status: 'upcoming'
+    event_status: 'upcoming',
+    event_description: ''
   });
 
   useEffect(() => {
@@ -36,7 +37,8 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
         is_sponsored: event.is_sponsored || false,
         vip_access_time: event.vip_access_time ? event.vip_access_time.slice(0, 16) : '',
         general_access_time: event.general_access_time ? event.general_access_time.slice(0, 16) : '',
-        event_status: event.event_status || 'upcoming'
+        event_status: event.event_status || 'upcoming',
+        event_description: event.event_description || ''
       });
     }
   }, [event, isOpen]);
@@ -62,19 +64,27 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
         return;
       }
 
+      // Helper function to convert datetime-local format to MySQL format
+      const formatDatetime = (datetimeString) => {
+        if (!datetimeString) return null;
+        // Convert 'YYYY-MM-DDTHH:MM' to 'YYYY-MM-DD HH:MM:SS'
+        return datetimeString.replace('T', ' ') + ':00';
+      };
+
       const eventData = {
         org_id: user.org_id,
         event_name: formData.event_name,
-        event_date: formData.event_date,
+        event_date: formatDatetime(formData.event_date),
         location: formData.location,
         max_attendees: formData.max_attendees ? parseInt(formData.max_attendees) : null,
         ticket_price: parseFloat(formData.ticket_price) || 0,
         event_category: formData.event_category,
         sponsor_name: formData.sponsor_name || null,
         is_sponsored: formData.is_sponsored,
-        vip_access_time: formData.vip_access_time || null,
-        general_access_time: formData.general_access_time || null,
-        event_status: formData.event_status
+        vip_access_time: formatDatetime(formData.vip_access_time),
+        general_access_time: formatDatetime(formData.general_access_time),
+        event_status: formData.event_status,
+        event_description: formData.event_description || null
       };
 
       await eventService.updateEvent(event.event_id, eventData);
@@ -210,6 +220,19 @@ export default function EditEventModal({ isOpen, onClose, event, onEventUpdated 
                 </option>
               ))}
             </select>
+          </div>
+
+          {/* Event Description */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Event Description</label>
+            <textarea
+              name="event_description"
+              value={formData.event_description}
+              onChange={handleInputChange}
+              className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:outline-none resize-none"
+              placeholder="Describe your event, what attendees can expect, key highlights, etc."
+              rows="4"
+            />
           </div>
 
           {/* Event Status */}

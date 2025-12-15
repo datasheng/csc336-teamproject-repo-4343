@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { X, Calendar, MapPin, Users, DollarSign, Clock, Award } from 'lucide-react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { X, Calendar, MapPin, Users, DollarSign, Award } from 'lucide-react';
 import { getCategoryLabel, getCategoryColor } from '../constants/eventCategories';
 import TicketRegistrationModal from './TicketRegistrationModal';
 import { ticketService } from '../services/ticketService';
@@ -10,13 +10,7 @@ export default function EventDetailModal({ event, isOpen, onClose }) {
   const [isRegistered, setIsRegistered] = useState(false);
   const user = authService.getCurrentUser();
 
-  useEffect(() => {
-    if (isOpen && event && user?.user_id) {
-      checkIfUserRegistered();
-    }
-  }, [isOpen, event, user?.user_id]);
-
-  const checkIfUserRegistered = async () => {
+  const checkIfUserRegistered = useCallback(async () => {
     try {
       const userTickets = await ticketService.getUserTickets(user.user_id);
       const isRegisteredForEvent = userTickets.some(ticket => ticket.event_id === event.event_id);
@@ -24,7 +18,13 @@ export default function EventDetailModal({ event, isOpen, onClose }) {
     } catch (error) {
       console.error('Error checking registration status:', error);
     }
-  };
+  }, [user?.user_id, event?.event_id]);
+
+  useEffect(() => {
+    if (isOpen && event && user?.user_id) {
+      checkIfUserRegistered();
+    }
+  }, [isOpen, event, user?.user_id, checkIfUserRegistered]);
 
   if (!isOpen || !event) return null;
 
@@ -96,6 +96,16 @@ export default function EventDetailModal({ event, isOpen, onClose }) {
                 </div>
               </div>
             </div>
+
+            {/* Event Description */}
+            {event.event_description && (
+              <div className="mb-8">
+                <h3 className="text-lg font-semibold text-gray-900 mb-3">About This Event</h3>
+                <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
+                  {event.event_description}
+                </p>
+              </div>
+            )}
 
             {/* Event Details Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">

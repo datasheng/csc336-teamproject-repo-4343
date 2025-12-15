@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Ticket as TicketIcon, Calendar, MapPin, Download, LogOut, QrCode, X } from 'lucide-react';
 import { ticketService } from '../services/ticketService';
 import eventService from '../services/eventService';
@@ -12,15 +12,7 @@ export default function MyTicketsPage() {
   const [showQRModal, setShowQRModal] = useState(false);
   const user = authService.getCurrentUser();
 
-  useEffect(() => {
-    if (!authService.isAuthenticated() || user?.org_id) {
-      window.location.href = '/';
-      return;
-    }
-    fetchUserTickets();
-  }, [user]);
-
-  const fetchUserTickets = async () => {
+  const fetchUserTickets = useCallback(async () => {
     try {
       const ticketsResponse = await ticketService.getUserTickets(user.user_id);
       
@@ -42,7 +34,15 @@ export default function MyTicketsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.user_id]);
+
+  useEffect(() => {
+    if (!authService.isAuthenticated() || user?.org_id) {
+      window.location.href = '/';
+      return;
+    }
+    fetchUserTickets();
+  }, [user, fetchUserTickets]);
 
   const handleLogout = () => {
     authService.logout();
@@ -136,7 +136,7 @@ export default function MyTicketsPage() {
     t.event && new Date(t.event.event_date) > new Date() && t.ticket_status === 'active'
   );
   const pastTickets = tickets.filter(t => 
-    t.event && new Date(t.event.event_date) <= new Date() || t.ticket_status === 'used'
+    (t.event && new Date(t.event.event_date) <= new Date()) || t.ticket_status === 'used'
   );
 
   return (

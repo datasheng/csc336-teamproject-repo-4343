@@ -4,7 +4,10 @@ import AuthModal from '../components/AuthModal';
 import EventCard from '../components/EventCard';
 import Footer from '../components/Footer';
 import eventService from '../services/eventService';
+import { authService } from '../services/authService';
 import Navbar from '../components/NavBar';
+import EventDetailModal from '../components/EventDetailModal';
+import { EVENT_CATEGORIES } from '../constants/eventCategories';
 
 
 const CampusTicketLogo = () => (
@@ -61,6 +64,9 @@ export default function LandingPage() {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [showEventDetail, setShowEventDetail] = useState(false);
+  const [eventDetails, setEventDetails] = useState(null);
+  const [pendingEventId, setPendingEventId] = useState(null);
 
   useEffect(() => {
     fetchEvents();
@@ -85,20 +91,49 @@ export default function LandingPage() {
     setShowAuthModal(true);
   };
 
-  const handleEventClick = (eventId) => {
-    window.location.href = `/events/${eventId}`;
+  const handleEventClick = async (eventId) => {
+    // Check if user is authenticated
+    if (!authService.isAuthenticated()) {
+      // Store the event ID and open login modal
+      setPendingEventId(eventId);
+      openAuthModal('login');
+      return;
+    }
+
+    // If authenticated, fetch and show event details
+    try {
+      const details = await eventService.getEventById(eventId);
+      setEventDetails(details);
+      setShowEventDetail(true);
+    } catch (error) {
+      console.error('Error fetching event details:', error);
+    }
+  };
+
+  const handleAuthSuccess = async () => {
+    setShowAuthModal(false);
+    
+    // Redirect based on user type
+    const user = authService.getCurrentUser();
+    if (user?.org_id) {
+      // Organization user - go to dashboard
+      window.location.href = '/dashboard';
+    } else {
+      // Normal user - go to events page
+      window.location.href = '/events';
+    }
   };
 
   const filteredEvents = events.filter(event => {
     const matchesSearch = event.event_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          (event.org_name && event.org_name.toLowerCase().includes(searchQuery.toLowerCase()));
     
-    const matchesCategory = selectedCategory === 'all' || event.category === selectedCategory; 
+    const matchesCategory = selectedCategory === 'all' || event.event_category === selectedCategory; 
     
     return matchesSearch && matchesCategory;
   });
 
-  const categories = ['all', 'Technology', 'Cultural', 'Career', 'Music', 'Workshop', 'Art'];
+  const categories = ['all', ...EVENT_CATEGORIES.map(cat => cat.value)];
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans text-gray-900"> 
@@ -135,7 +170,9 @@ export default function LandingPage() {
 
 
         <div className="relative z-10">
-            <Navbar onAuthClick={openAuthModal} />
+            <Navbar onAuthClick={openAuthModal} onEventsClick={() => {
+              document.getElementById('events-section').scrollIntoView({ behavior: 'smooth' });
+            }} />
 
             <div className="py-12 md:py-16 lg:py-20 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                 
@@ -191,7 +228,7 @@ export default function LandingPage() {
             <div id="events-section" className="py-16">
               
 
-              <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6">
+              <div className="flex flex-col md:flex-row justify-between items-end mb-10 gap-6" id="events-section">
                 <div>
                   <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 flex items-center gap-3">
                     <Calendar className="h-7 w-7 text-cyan-500" /> 
@@ -208,9 +245,10 @@ export default function LandingPage() {
                       onChange={(e) => setSelectedCategory(e.target.value)}
                       className="appearance-none w-full md:w-64 px-5 py-3 bg-white border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-gray-700 font-medium shadow-sm cursor-pointer"
                     >
-                      {categories.map(cat => ( 
-                        <option key={cat} value={cat}>
-                          {cat === 'all' ? 'All Categories' : cat}
+                      <option value="all">All Categories</option>
+                      {EVENT_CATEGORIES.map(cat => ( 
+                        <option key={cat.value} value={cat.value}>
+                          {cat.label}
                         </option>
                       ))}
                     </select>
@@ -303,6 +341,13 @@ export default function LandingPage() {
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         initialMode={authMode}
+        onSuccess={handleAuthSuccess}
+      />
+
+      <EventDetailModal 
+        event={eventDetails} 
+        isOpen={showEventDetail} 
+        onClose={() => setShowEventDetail(false)} 
       />
 
       <Footer />

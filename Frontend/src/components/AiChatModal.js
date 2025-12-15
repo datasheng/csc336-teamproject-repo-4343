@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { X, Send, Sparkles, Loader, Trash2, Bot, User } from 'lucide-react';
 import { chatService } from '../services/chatService';
-import { authService } from '../services/authService';
 import eventService from '../services/eventService';
 import EventDetailModal from './EventDetailModal';
-import { getCategoryLabel, getCategoryColor } from '../constants/eventCategories';
 
 export default function AIChatModal({ isOpen, onClose }) {
   const [messages, setMessages] = useState([
@@ -18,11 +16,9 @@ export default function AIChatModal({ isOpen, onClose }) {
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [selectedEvent, setSelectedEvent] = useState(null);
   const [showEventDetail, setShowEventDetail] = useState(false);
   const [eventDetails, setEventDetails] = useState(null);
   const messagesEndRef = useRef(null);
-  const user = authService.getCurrentUser();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -37,7 +33,6 @@ export default function AIChatModal({ isOpen, onClose }) {
       // Fetch full event details
       const details = await eventService.getEventById(eventId);
       setEventDetails(details);
-      setSelectedEvent(eventId);
       setShowEventDetail(true);
     } catch (error) {
       console.error('Error fetching event details:', error);
@@ -191,14 +186,7 @@ export default function AIChatModal({ isOpen, onClose }) {
                             onClick={() => handleEventClick(event.id)}
                             className="border rounded-lg p-3 text-xs bg-gradient-to-r from-indigo-50 to-purple-50 hover:shadow-md transition cursor-pointer mb-2 hover:scale-105 transform duration-200"
                           >
-                            <div className="flex items-start justify-between">
-                              <p className="font-bold text-sm text-gray-900">{event.name}</p>
-                              {event.event_category && (
-                                <span className={`inline-block px-2 py-1 rounded-full text-xs font-semibold whitespace-nowrap ml-2 ${getCategoryColor(event.event_category)}`}>
-                                  {getCategoryLabel(event.event_category)}
-                                </span>
-                              )}
-                            </div>
+                            <p className="font-bold text-sm text-gray-900">{event.name}</p>
                             <div className="mt-1 space-y-1 text-gray-700">
                               <p>📅 {event.date}</p>
                               <p>📍 {event.location}</p>

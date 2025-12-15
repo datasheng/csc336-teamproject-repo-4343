@@ -5,8 +5,8 @@ import { ticketService } from '../services/ticketService';
 import { authService } from '../services/authService';
 import { excelService } from '../services/excelService';
 import CreateEventModal from '../components/CreateEventModal';
-import EventDetailModal from '../components/EventDetailModal';
 import EditEventModal from '../components/EditEventModal';
+import EventStatsModal from '../components/EventStatsModal';
 
 function StatCard({ label, value, icon }) {
   return (
@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState(null);
-  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showStatsModal, setShowStatsModal] = useState(false);
   const [totalRegistrations, setTotalRegistrations] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
 
@@ -93,7 +93,7 @@ export default function Dashboard() {
 
   const handleViewEvent = (event) => {
     setSelectedEvent(event);
-    setShowDetailModal(true);
+    setShowStatsModal(true);
   };
 
   const handleEditEvent = (event) => {
@@ -144,12 +144,12 @@ export default function Dashboard() {
 
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">
-                {user?.name}
-                {user?.is_premium && (
+                Welcome, <span className="font-semibold">{user?.org_name && user?.org_name !== '0' ? user?.org_name : 'Organization'}</span>
+                {user?.is_premium ? (
                   <span className="ml-2 px-2 py-1 bg-purple-100 text-purple-800 text-xs font-semibold rounded">
                     PREMIUM
                   </span>
-                )}
+                ) : null}
               </span>
 
               <button
@@ -287,9 +287,9 @@ export default function Dashboard() {
         onEventUpdated={handleEventUpdated}
       />
 
-      <EventDetailModal
-        isOpen={showDetailModal}
-        onClose={() => setShowDetailModal(false)}
+      <EventStatsModal
+        isOpen={showStatsModal}
+        onClose={() => setShowStatsModal(false)}
         event={selectedEvent}
       />
     </div>

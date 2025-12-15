@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Mail, Lock, User, Building2 } from 'lucide-react';
 import { authService } from '../services/authService';
 
-export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
+export default function AuthModal({ isOpen, onClose, initialMode = 'login', onSuccess }) {
   const [authMode, setAuthMode] = useState(initialMode);
   const [accountType, setAccountType] = useState('user');
   const [error, setError] = useState('');
@@ -35,13 +35,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
 
     try {
       const response = await authService.login(formData.email, formData.password, accountType);
-      onClose();
       
-      // Redirect based on account type
-      if (accountType === 'organization') {
-        window.location.href = '/dashboard';
+      // Call onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess();
       } else {
-        window.location.href = '/events';
+        // Default redirect behavior
+        onClose();
+        if (accountType === 'organization') {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/events';
+        }
       }
     } catch (err) {
       setError(err.message || 'Login failed. Please try again.');
@@ -86,13 +91,18 @@ export default function AuthModal({ isOpen, onClose, initialMode = 'login' }) {
           is_vip: formData.is_vip
         });
       }
-      onClose();
       
-      // Redirect based on user type  
-      if (accountType === 'organization') {
-        window.location.href = '/dashboard';
+      // Call onSuccess callback if provided
+      if (onSuccess) {
+        onSuccess();
       } else {
-        window.location.href = '/events';
+        // Default redirect behavior
+        onClose();
+        if (accountType === 'organization') {
+          window.location.href = '/dashboard';
+        } else {
+          window.location.href = '/events';
+        }
       }
     } catch (err) {
       setError(err.message || 'Signup failed. Please try again.');

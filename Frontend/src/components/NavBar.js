@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Ticket, Menu, X } from 'lucide-react';
 import { authService } from '../services/authService';
 
-export default function Navbar({ onAuthClick }) {
+export default function Navbar({ onAuthClick, onEventsClick }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const user = authService.getCurrentUser();
   const isAuthenticated = authService.isAuthenticated();
@@ -28,22 +28,29 @@ export default function Navbar({ onAuthClick }) {
                 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex items-center space-x-6">
-                    <a href="#events" className="text-gray-700 hover:text-cyan-500 transition">Events</a>
-                    <a href="#about" className="text-gray-700 hover:text-cyan-500 transition">About</a>
+                    <button 
+                      onClick={onEventsClick}
+                      className="text-gray-700 hover:text-cyan-500 transition bg-none border-none cursor-pointer"
+                    >
+                      Events
+                    </button>
+                    <a href="/about" className="text-gray-700 hover:text-cyan-500 transition">About</a>
                     
                     {isAuthenticated ? (
                         <>
-                            <span className="text-gray-700">Welcome, {user?.name}</span>
-                            {user?.user_type === 'organization' && (
+                            <span className="text-gray-700">
+                              Welcome, <span className="font-semibold">{(user?.org_name && user?.org_name !== '0') ? user?.org_name : (user?.user_name && user?.user_name !== '0') ? user?.user_name : 'User'}</span>
+                            </span>
+                            {user?.org_name && typeof user?.org_name === 'string' && user?.org_name !== '0' ? (
                                 <a href="/dashboard" className="text-gray-700 hover:text-cyan-500 transition">
                                     Dashboard
                                 </a>
-                            )}
-                            {user?.user_type === 'user' && (
+                            ) : null}
+                            {user?.user_name && typeof user?.user_name === 'string' && user?.user_name !== '0' ? (
                                 <a href="/events" className="text-gray-700 hover:text-cyan-500 transition">
                                     My Events
                                 </a>
-                            )}
+                            ) : null}
                             <button 
                                 onClick={handleLogout}
                                 className="text-gray-700 hover:text-cyan-500 transition"
@@ -55,15 +62,9 @@ export default function Navbar({ onAuthClick }) {
                         <>
                             <button 
                                 onClick={() => onAuthClick('login')}
-                                className="text-gray-700 hover:text-cyan-500 transition"
+                                className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition font-semibold shadow-md hover:shadow-lg"
                             >
                                 Sign In
-                            </button>
-                            <button 
-                                onClick={() => onAuthClick('signup')}
-                                className="bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-cyan-600 transition shadow-md"
-                            >
-                                Create Account
                             </button>
                         </>
                     )}
@@ -84,22 +85,32 @@ export default function Navbar({ onAuthClick }) {
       {/* Mobile Navigation */}
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t rounded-b-xl px-4 pt-2 pb-4 space-y-3 shadow-md mx-auto max-w-7xl sm:px-6 lg:px-8">
-            <a href="#events" className="block text-gray-700 hover:text-cyan-500">Events</a>
-            <a href="#about" className="block text-gray-700 hover:text-cyan-500">About</a>
+            <button 
+              onClick={() => {
+                onEventsClick();
+                setIsMenuOpen(false);
+              }}
+              className="block w-full text-left text-gray-700 hover:text-cyan-500 bg-none border-none cursor-pointer"
+            >
+              Events
+            </button>
+            <a href="/about" className="block text-gray-700 hover:text-cyan-500">About</a>
             
             {isAuthenticated ? (
               <>
-                <span className="block text-gray-700">Welcome, {user?.name}</span>
-                {user?.user_type === 'organization' && (
+                <span className="block text-gray-700">
+                  Welcome, <span className="font-semibold">{(user?.org_name && user?.org_name !== '0') ? user?.org_name : (user?.user_name && user?.user_name !== '0') ? user?.user_name : 'User'}</span>
+                </span>
+                {user?.org_name && typeof user?.org_name === 'string' && user?.org_name !== '0' ? (
                   <a href="/dashboard" className="block text-gray-700 hover:text-cyan-500">
                     Dashboard
                   </a>
-                )}
-                {user?.user_type === 'user' && (
+                ) : null}
+                {user?.user_name && typeof user?.user_name === 'string' && user?.user_name !== '0' ? (
                   <a href="/events" className="block text-gray-700 hover:text-cyan-500">
                     My Events
                   </a>
-                )}
+                ) : null}
                 <button 
                   onClick={handleLogout}
                   className="block w-full text-left text-gray-700 hover:text-cyan-500"
@@ -111,15 +122,9 @@ export default function Navbar({ onAuthClick }) {
               <>
                 <button 
                   onClick={() => onAuthClick('login')}
-                  className="block w-full text-left text-gray-700 hover:text-cyan-500"
+                  className="px-5 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg hover:from-indigo-700 hover:to-purple-700 transition font-semibold shadow-md hover:shadow-lg block w-full text-center"
                 >
                   Sign In
-                </button>
-                <button 
-                  onClick={() => onAuthClick('signup')}
-                  className="block w-full bg-gradient-to-r from-blue-600 to-cyan-500 text-white px-4 py-2 rounded-lg hover:from-blue-700 hover:to-cyan-600 text-left"
-                >
-                  Create Account
                 </button>
               </>
             )}

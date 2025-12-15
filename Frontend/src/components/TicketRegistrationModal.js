@@ -120,7 +120,7 @@ export default function TicketRegistrationModal({ event, isOpen, onClose, onSucc
       }
 
       // Process payment (simulated)
-      const paymentResponse = await paymentService.processPayment({
+      await paymentService.processPayment({
         user_id: user.user_id,
         amount: event.ticket_price,
         platform_fee: (event.ticket_price * 0.05).toFixed(2), // 5% platform fee

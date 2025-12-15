@@ -5,6 +5,7 @@ import EventsPage from './Pages/EventsPage';
 import Dashboard from './Pages/Dashboard';
 import LandingPage from "./Pages/LandingPage";
 import MyTicketsPage from './Pages/MyTicketsPage';
+import AboutPage from './Pages/AboutPage';
 
 import "./App.css";
 import './index.css';
@@ -18,6 +19,7 @@ function App() {
         <Route path="/events" element={<EventsPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/my-tickets" element={<MyTicketsPage />} />
+        <Route path="/about" element={<AboutPage />} />
         
     
       </Routes>

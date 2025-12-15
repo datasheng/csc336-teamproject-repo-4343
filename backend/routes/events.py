@@ -10,8 +10,8 @@ def create_event():
         conn = get_db_connection()
         cursor = conn.cursor()
         cursor.execute (
-            "INSERT INTO EVENTS (org_id, event_name, event_date, location, max_attendees, ticket_price, event_category, event_status, is_sponsored, sponsor_name, vip_access_time, general_access_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
-            (data["org_id"], data["event_name"], data["event_date"], data["location"], data.get("max_attendees"), data["ticket_price"], data.get("event_category", "other"), data.get("event_status", "upcoming"), data.get("is_sponsored", False), data.get("sponsor_name"), data.get("vip_access_time"), data.get("general_access_time"))
+            "INSERT INTO EVENTS (org_id, event_name, event_date, location, max_attendees, ticket_price, event_category, event_status, is_sponsored, sponsor_name, vip_access_time, general_access_time, event_description) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
+            (data["org_id"], data["event_name"], data["event_date"], data["location"], data.get("max_attendees"), data["ticket_price"], data.get("event_category", "other"), data.get("event_status", "upcoming"), data.get("is_sponsored", False), data.get("sponsor_name"), data.get("vip_access_time"), data.get("general_access_time"), data.get("event_description"))
         )
         conn.commit()
         cursor.close()
@@ -66,8 +66,8 @@ def update_event(event_id):
             return jsonify({"error": "Database connection failed"}), 500
         cursor = conn.cursor()
         cursor.execute (
-            "UPDATE EVENTS SET org_id = %s, event_name = %s, event_date = %s, location = %s, max_attendees = %s, ticket_price = %s, event_category = %s, event_status = %s, is_sponsored = %s, sponsor_name = %s, vip_access_time = %s, general_access_time = %s WHERE event_id = %s",
-            (data["org_id"], data["event_name"], data["event_date"], data["location"], data.get("max_attendees"), data["ticket_price"], data.get("event_category", "other"), data.get("event_status", "upcoming"), data.get("is_sponsored", False), data["sponsor_name"], data["vip_access_time"], data.get("general_access_time"), event_id)
+            "UPDATE EVENTS SET org_id = %s, event_name = %s, event_date = %s, location = %s, max_attendees = %s, ticket_price = %s, event_category = %s, event_status = %s, is_sponsored = %s, sponsor_name = %s, vip_access_time = %s, general_access_time = %s, event_description = %s WHERE event_id = %s",
+            (data["org_id"], data["event_name"], data["event_date"], data["location"], data.get("max_attendees"), data["ticket_price"], data.get("event_category", "other"), data.get("event_status", "upcoming"), data.get("is_sponsored", False), data["sponsor_name"], data["vip_access_time"], data.get("general_access_time"), data.get("event_description"), event_id)
         )
         conn.commit()
         cursor.close()
